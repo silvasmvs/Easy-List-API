@@ -9,6 +9,9 @@ app.use(bodyParser.urlencoded({ extended: false}));
 require('./controllers/userController')(app);
 require('./controllers/listController')(app);
 
-var porta = process.env.PORT || 8080;
+let port = process.env.PORT;
+if (port == null || port == "") {
+  port = 8000;
+}
 
-app.listen(porta);
+app.listen(port);
