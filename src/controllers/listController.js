@@ -14,7 +14,7 @@ router.get('/list/', async (req, res) => {
 });
 
 router.get('/list/user/:id', async (req, res) => {
-    await List.findOne({
+    await List.findAll({
         raw: true,
         where: { idUser: req.params.id },
         attributes: ['name', 'items']
@@ -29,13 +29,18 @@ router.post('/list', async (req, res) => {
         await List.findOrCreate({
             where: { name: name },
             defaults: {
+                idUser: req.body.idUser,
                 name: req.body.name,
                 items: req.body.items
             }
         })
             .spread((list, created) => {
-                if (created) {
-                    res.send(list);
+                if (created) {                    
+                    res.send({
+                        "idUser": list.idUser,
+                        "name": list.name,
+                        "items": list.items
+                    });
                 }
                 else
                     res.status(400).send({ error: 'List Already Exists' });
@@ -52,7 +57,7 @@ router.put('/list/:id', async (req, res) => {
     try {
         await List.update({
             name: name,
-            items: items
+            items: req.body.items
         }, {
             where: {
             id: id
@@ -64,7 +69,11 @@ router.put('/list/:id', async (req, res) => {
             where: { id: id },
             attributes: ['name', 'items']
             }).then(function (list) {
-                res.send(list);
+                res.send({
+                    "idUser": list.idUser,
+                    "name": list.name,
+                    "items": list.items
+                });
             });
 
     } catch (err) {
