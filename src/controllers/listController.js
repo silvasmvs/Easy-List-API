@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const List = require('../models/List');
+const authMiddleware = require('../middlewares/auth');
 
-//router.use(authMiddleware);
+router.use(authMiddleware);
 
 router.get('/list/', async (req, res) => {
     await List.findAll({
