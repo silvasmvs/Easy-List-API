@@ -4,7 +4,7 @@ const List = require('../models/List');
 
 //router.use(authMiddleware);
 
-router.get('/', async (req, res) => {
+router.get('/list/', async (req, res) => {
     await List.findAll({
         raw: true,
         attributes: ['name','items']
@@ -13,18 +13,8 @@ router.get('/', async (req, res) => {
     });
 });
 
-router.get('/:id', async (req, res) => {
-    await List.findAll({
-        raw: true,
-        where: { id: req.params.id },
-        attributes: ['name', 'items']
-    }).then(function (lists) {
-        res.send(lists);
-    });
-});
-
-router.get('/user/:id', async (req, res) => {
-    await List.findAll({
+router.get('/list/user/:id', async (req, res) => {
+    await List.findOne({
         raw: true,
         where: { idUser: req.params.id },
         attributes: ['name', 'items']
@@ -33,7 +23,7 @@ router.get('/user/:id', async (req, res) => {
     });
 });
 
-router.post('/', async (req, res) => {
+router.post('/list', async (req, res) => {
     const { name } = req.body;
     try {
         await List.findOrCreate({
@@ -55,5 +45,49 @@ router.post('/', async (req, res) => {
     }
 });
 
+router.put('/list/:id', async (req, res) => {
+    const { name } = req.body;
+    const id = req.params.id;
 
-module.exports = app => app.use('/list' , router);
+    try {
+        await List.update({
+            name: name,
+            items: items
+        }, {
+            where: {
+            id: id
+            }
+        });
+    
+        List.findOne({
+            raw: true,
+            where: { id: id },
+            attributes: ['name', 'items']
+            }).then(function (list) {
+                res.send(list);
+            });
+
+    } catch (err) {
+        res.status(400).send({ error: 'Update Failed' });
+    }
+
+});
+
+
+router.delete('/list/:id', function (req, res) {
+    try {
+        List.destroy({
+            where: {
+                id: req.params.id
+            }
+        });
+    
+        res.send({"info": "List has been Deleted"});
+
+    } catch (err) {
+        res.status(400).send({ error: 'Delete Failed' });
+    }
+});
+
+
+module.exports = app => app.use('/' , router);
